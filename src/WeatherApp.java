@@ -54,7 +54,26 @@ public class WeatherApp {
 
             //in order to get the current hour's data we need the index
             JSONArray time = (JSONArray) hourly.get("time");
+            //index variable that is gonna be usefull to retrive all date base on the hour
             int index = findIndexOfCurrentTime(time);
+
+            //retrieve weather forecast based on current hour
+            JSONArray temperatureData = (JSONArray) hourly.get("temperature_2m");
+            double temperature = (double) temperatureData.get(index);
+
+            //get weather code
+            JSONArray weathercode = (JSONArray) hourly.get("weathercode");
+            String weatherCondition = convertWeatherCode((long) weathercode.get(index));
+
+            //get humidity
+            JSONArray relativeHumidity = (JSONArray) hourly.get("relative_humidity_2m");
+            long humidity = (long) relativeHumidity.get(index);
+
+            //get windspeed
+            JSONArray windspeedData = (JSONArray) hourly.get("wind_speed_10m");
+            double windspeed = (double) windspeedData.get(index);
+
+            //continua a 38 m
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,20 +144,22 @@ public class WeatherApp {
         return null;
     }
 
-    private static int findIndexOfCurrentTime(JSONArray timeList){
+    private static int findIndexOfCurrentTime(JSONArray timeList) {
         String currentTime = getCurrentTime();
 
-        //iterate through the time list and see which one matches the corrent time
-        for (int i=0; i<timeList.size(); i++){
+        //iterate through the time list and see which one matches the current time
+        for (int i = 0; i < timeList.size(); i++) {
             String time = (String) timeList.get(i);
-            if(time.equalsIgnoreCase(currentTime)){
+            //equalsIgnoreCase: compares two strings irrespective of the case (lower or upper) of the string.
+            if (time.equalsIgnoreCase(currentTime)) {
                 //return index
                 return i;
             }
         }
         return 0;
     }
-    public static String getCurrentTime(){
+
+    public static String getCurrentTime() {
         //get current data and time
         LocalDateTime currentDataTime = LocalDateTime.now();
 
@@ -147,5 +168,22 @@ public class WeatherApp {
         //format and print the current data and time
         String formattedDateTime = currentDataTime.format(formatter);
         return formattedDateTime;
+    }
+
+    /*method to convert weather code in something more readable
+     by compare results with the WMO Weather interpretation code at this link:
+     https://open-meteo.com/en/docs#latitude=33.767&longitude=-118.1892&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Europe%2FLondon*/
+    private static String convertWeatherCode(long weathercode) {
+        String weatherCondition = "";
+        if (weathercode == 0L) {
+            weatherCondition = "Clear";
+        } else if (weathercode > 0 && weathercode <= 3L) {
+            weatherCondition = "Cloudy";
+        } else if ((weathercode >= 51L && weathercode <= 67L) || (weathercode >= 80L && weathercode <= 99)) {
+            weatherCondition = "rain";
+        } else if (weathercode >= 71L && weathercode <= 77L) {
+            weatherCondition = "sonw";
+        }
+        return weatherCondition;
     }
 }
