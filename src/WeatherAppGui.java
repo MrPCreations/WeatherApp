@@ -83,7 +83,7 @@ public class WeatherAppGui extends JFrame {
         windspeedText.setFont(new Font("Dialog", Font.PLAIN,16));
         add(windspeedText);
     }
-    //Use to craete images in gui components
+    //Use to create images in gui components
     private ImageIcon loadImage(String resurcePath){
         try{
             //read the immage file from the path given
